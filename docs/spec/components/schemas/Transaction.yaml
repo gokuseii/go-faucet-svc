@@ -1,0 +1,13 @@
+type: object
+required:
+  - id
+  - type
+properties:
+  id:
+    type: string
+    description: transaction hash
+    example: 0x20898757ad1ffbc036af0c0eea6b5f47fc5ffe9de2a0e9b07f6216cd64381ee7
+  type:
+    type: string
+    enum:
+      - transaction

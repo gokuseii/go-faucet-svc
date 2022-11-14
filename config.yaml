@@ -1,0 +1,33 @@
+log:
+  level: debug
+  disable_sentry: true
+
+evm:
+  signer: ""
+  chains:
+    - name: "Goerli"
+      native_token: GETH
+      chain_id: 5
+      rpc: "https://eth-goerli.public.blastapi.io"
+    - name: "Sepolia"
+      native_token: SEP
+      chain_id: 11155111
+      rpc: "https://rpc.sepolia.org"
+    - name: "Binance Smart Chain Testnet"
+      native_token: tBNB
+      chain_id: 97
+      rpc: "https://bsctestapi.terminet.io/rpc"
+    - name: "Mumbai"
+      native_token: MATIC
+      chain_id: 80001
+      rpc: "https://polygon-testnet.public.blastapi.io"
+
+listener:
+  addr: :8000
+
+cop:
+  disabled: true
+  endpoint: "http://..."
+  upstream: "http://..."
+  service_name: faucet-svc
+  service_port: 80
