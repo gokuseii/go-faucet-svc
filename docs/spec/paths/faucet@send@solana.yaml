@@ -26,7 +26,7 @@ post:
     '400':
       description: invalid request
     404:
-      description: chain id or token symbol not supported
+      description: chain not found
     '500':
       description: internal error
 
