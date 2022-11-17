@@ -1,0 +1,21 @@
+allOf:
+  - $ref: '#/components/schemas/SendSolanaKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - chain
+          - to
+          - amount
+        properties:
+          chain:
+            type: string
+          to:
+            type: string
+            example: HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH
+          amount:
+            type: uint64
+            example: 1000000000

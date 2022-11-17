@@ -22,6 +22,14 @@ evm:
       chain_id: 80001
       rpc: "https://polygon-testnet.public.blastapi.io"
 
+solana:
+  signer: ""
+  chains:
+    - name: "testnet"
+      rpc: "https://api.testnet.solana.com"
+    - name: "devnet"
+      rpc: "https://api.devnet.solana.com"
+
 listener:
   addr: :8000
 

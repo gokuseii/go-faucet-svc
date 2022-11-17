@@ -1,7 +1,6 @@
 package service
 
 import (
-	types2 "faucet-svc/internal/types"
 	"net"
 	"net/http"
 
@@ -12,11 +11,11 @@ import (
 )
 
 type service struct {
-	log       *logan.Entry
-	copus     types.Copus
-	listener  net.Listener
-	evmChains types2.EvmChains
-	signer    types2.Signer
+	log      *logan.Entry
+	copus    types.Copus
+	listener net.Listener
+	chains   config.Chains
+	signers  config.Signers
 }
 
 func (s *service) run() error {
@@ -32,11 +31,11 @@ func (s *service) run() error {
 
 func newService(cfg config.Config) *service {
 	return &service{
-		log:       cfg.Log(),
-		copus:     cfg.Copus(),
-		listener:  cfg.Listener(),
-		evmChains: cfg.EvmChains(),
-		signer:    cfg.Signer(),
+		log:      cfg.Log(),
+		copus:    cfg.Copus(),
+		listener: cfg.Listener(),
+		chains:   cfg.Chains(),
+		signers:  cfg.Signers(),
 	}
 }
 

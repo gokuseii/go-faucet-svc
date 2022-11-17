@@ -1,13 +1,16 @@
 package types
 
-import "github.com/ethereum/go-ethereum/ethclient"
+import (
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/portto/solana-go-sdk/client"
+)
 
 type EvmChain interface {
+	Client() *ethclient.Client
 	ID() int64
 	Name() string
 	RPC() string
 	NativeToken() string
-	Client() *ethclient.Client
 }
 
 type evmChain struct {
@@ -56,6 +59,54 @@ func (chains EvmChains) Get(key int64) (EvmChain, bool) {
 }
 
 func (chains EvmChains) Set(key int64, val EvmChain) bool {
+	if _, ok := chains[key]; ok {
+		return false
+	}
+
+	chains[key] = val
+	return true
+}
+
+type SolanaChain interface {
+	Client() *client.Client
+	Name() string
+	RPC() string
+}
+
+type solanaChain struct {
+	client *client.Client
+	name   string
+	rpc    string
+}
+
+func NewSolanaChain(client *client.Client, name string, rpc string) SolanaChain {
+	return &solanaChain{
+		client: client,
+		name:   name,
+		rpc:    rpc,
+	}
+}
+
+func (chain *solanaChain) Client() *client.Client {
+	return chain.client
+}
+
+func (chain *solanaChain) Name() string {
+	return chain.name
+}
+
+func (chain *solanaChain) RPC() string {
+	return chain.rpc
+}
+
+type SolanaChains map[string]SolanaChain
+
+func (chains SolanaChains) Get(key string) (SolanaChain, bool) {
+	val, ok := chains[key]
+	return val, ok
+}
+
+func (chains SolanaChains) Set(key string, val SolanaChain) bool {
 	if _, ok := chains[key]; ok {
 		return false
 	}

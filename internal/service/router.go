@@ -14,12 +14,15 @@ func (s *service) router() chi.Router {
 		ape.LoganMiddleware(s.log),
 		ape.CtxMiddleware(
 			handlers.CtxLog(s.log),
-			handlers.CtxEvmChains(s.evmChains),
-			handlers.CtxSigner(s.signer),
+			handlers.CtxChains(s.chains),
+			handlers.CtxSigners(s.signers),
 		),
 	)
 	r.Route("/faucet", func(r chi.Router) {
-		r.Post("/send/evm", handlers.SendEvmToken)
+		r.Route("/send", func(r chi.Router) {
+			r.Post("/evm", handlers.SendEvm)
+			r.Post("/solana", handlers.SendSolana)
+		})
 	})
 
 	return r

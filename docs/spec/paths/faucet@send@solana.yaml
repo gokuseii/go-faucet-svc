@@ -1,0 +1,32 @@
+post:
+  tags:
+    - Send Solana Token
+  summary: Send amount of tokens to address on solana chain
+  operationId: sendSolana
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: '#/components/schemas/SendSolana'
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/Transaction'
+    '400':
+      description: invalid request
+    404:
+      description: chain id or token symbol not supported
+    '500':
+      description: internal error
+

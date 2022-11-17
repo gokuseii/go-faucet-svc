@@ -6,33 +6,32 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-type Signer interface {
+type EvmSigner interface {
 	Address() common.Address
 	PrivKey() *ecdsa.PrivateKey
 }
 
-type signer struct {
+type evmSigner struct {
 	address common.Address
 	privKey *ecdsa.PrivateKey
 }
 
-func NewSigner(privKey *ecdsa.PrivateKey) Signer {
-
+func NewEvmSigner(privKey *ecdsa.PrivateKey) EvmSigner {
 	publicKeyECDSA, ok := privKey.Public().(*ecdsa.PublicKey)
 	if !ok {
 		panic("error casting public key to ECDSA")
 	}
 	address := crypto.PubkeyToAddress(*publicKeyECDSA)
-	return &signer{
+	return &evmSigner{
 		address: address,
 		privKey: privKey,
 	}
 }
 
-func (s *signer) Address() common.Address {
+func (s *evmSigner) Address() common.Address {
 	return s.address
 }
 
-func (s *signer) PrivKey() *ecdsa.PrivateKey {
+func (s *evmSigner) PrivKey() *ecdsa.PrivateKey {
 	return s.privKey
 }

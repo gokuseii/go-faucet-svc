@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	"faucet-svc/internal/types"
+	"faucet-svc/internal/config"
 	"net/http"
 
 	"gitlab.com/distributed_lab/logan/v3"
@@ -12,8 +12,8 @@ type ctxKey int
 
 const (
 	logCtxKey ctxKey = iota
-	evmChainsCtxKey
-	signerCtxKey
+	chainerCtxKey
+	signererCtxKey
 )
 
 func CtxLog(entry *logan.Entry) func(context.Context) context.Context {
@@ -26,22 +26,22 @@ func Log(r *http.Request) *logan.Entry {
 	return r.Context().Value(logCtxKey).(*logan.Entry)
 }
 
-func CtxSigner(v types.Signer) func(context.Context) context.Context {
+func CtxSigners(v config.Signers) func(context.Context) context.Context {
 	return func(ctx context.Context) context.Context {
-		return context.WithValue(ctx, signerCtxKey, v)
+		return context.WithValue(ctx, signererCtxKey, v)
 	}
 }
 
-func Signer(r *http.Request) types.Signer {
-	return r.Context().Value(signerCtxKey).(types.Signer)
+func Signers(r *http.Request) config.Signers {
+	return r.Context().Value(signererCtxKey).(config.Signers)
 }
 
-func CtxEvmChains(entry types.EvmChains) func(context.Context) context.Context {
+func CtxChains(entry config.Chains) func(context.Context) context.Context {
 	return func(ctx context.Context) context.Context {
-		return context.WithValue(ctx, evmChainsCtxKey, entry)
+		return context.WithValue(ctx, chainerCtxKey, entry)
 	}
 }
 
-func EvmChains(r *http.Request) types.EvmChains {
-	return r.Context().Value(evmChainsCtxKey).(types.EvmChains)
+func Chains(r *http.Request) config.Chains {
+	return r.Context().Value(chainerCtxKey).(config.Chains)
 }

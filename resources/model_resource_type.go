@@ -8,5 +8,6 @@ type ResourceType string
 
 // List of ResourceType
 const (
-	SEND_EVM_TOKEN ResourceType = "sendEvmToken"
+	SEND_EVM    ResourceType = "sendEvm"
+	SEND_SOLANA ResourceType = "sendSolana"
 )

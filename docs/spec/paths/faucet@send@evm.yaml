@@ -1,8 +1,8 @@
 post:
   tags:
-    - Send
+    - Send Evm Token
   summary: Send amount of tokens to address on evm chain
-  operationId: sendEvmToken
+  operationId: sendEvm
   requestBody:
     content:
       application/json:
@@ -12,7 +12,7 @@ post:
             - data
           properties:
             data:
-              $ref: '#/components/schemas/SendEvmToken'
+              $ref: '#/components/schemas/SendEvm'
   responses:
     200:
       description: Success

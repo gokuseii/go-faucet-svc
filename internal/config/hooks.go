@@ -32,14 +32,50 @@ var evmChainHook = figure.Hooks{
 					Please()
 
 				if err != nil {
-					return reflect.Value{}, errors.Wrap(err, "failed to figure out chain")
+					return reflect.Value{}, errors.Wrap(err, "failed to figure out evm chain")
 				}
 
 				chains = append(chains, ch)
 			}
 			return reflect.ValueOf(chains), nil
 		default:
-			return reflect.Value{}, errors.New("unexpected type while figure []evmChainCfg")
+			return reflect.Value{}, errors.New("unexpected type while figure []evmChain")
+		}
+	},
+}
+
+var solanaChainHook = figure.Hooks{
+	"[]config.solanaChain": func(value interface{}) (reflect.Value, error) {
+
+		if value == nil {
+			return reflect.Value{}, nil
+		}
+
+		switch s := value.(type) {
+		case []interface{}:
+			chains := make([]solanaChain, 0, len(s))
+			for _, val := range s {
+				value := val.(map[interface{}]interface{})
+				params := make(map[string]interface{})
+				for k, v := range value {
+					params[k.(string)] = v
+				}
+				var ch solanaChain
+				err := figure.
+					Out(&ch).
+					With(figure.BaseHooks).
+					From(params).
+					Please()
+
+				if err != nil {
+					return reflect.Value{}, errors.Wrap(err, "failed to figure out solana chain")
+				}
+
+				chains = append(chains, ch)
+			}
+			return reflect.ValueOf(chains), nil
+		default:
+			return reflect.Value{}, errors.New("unexpected type while figure []evmChain")
 		}
 	},
 }
