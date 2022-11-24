@@ -1,7 +1,7 @@
 post:
   tags:
     - Send Solana Token
-  summary: Send amount of tokens to address on solana chain
+  summary: Send tokens to address on solana chain
   operationId: sendSolana
   requestBody:
     content:

@@ -1,7 +1,7 @@
 post:
   tags:
     - Send Evm Token
-  summary: Send amount of tokens to address on evm chain
+  summary: Send tokens to address on evm chain
   operationId: sendEvm
   requestBody:
     content:
