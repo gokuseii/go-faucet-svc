@@ -30,6 +30,11 @@ solana:
     - name: "devnet"
       rpc: "https://api.devnet.solana.com"
 
+near:
+  signer_id: ""
+  signer: "ed25519:..."
+  rpc: "https://rpc.testnet.near.org"
+
 listener:
   addr: :8000
 
