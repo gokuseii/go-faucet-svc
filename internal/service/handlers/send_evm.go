@@ -51,7 +51,8 @@ func SendEvm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	amount := request.Data.Attributes.Amount
-	if isLessOrEq(amount, *big.NewInt(0)) {
+	z := types2.Amount{Int: amount}
+	if z.IsLessOrEq(*big.NewInt(0)) {
 		Log(r).Error("invalid amount for sending")
 		ape.RenderErr(w, problems.BadRequest(
 			validation.Errors{"/data/attributes/amount": errors.New("invalid amount for sending")},
@@ -59,14 +60,15 @@ func SendEvm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	balance, err := chain.Client().BalanceAt(context.Background(), signer.Address(), nil)
+	res, err := chain.Client().BalanceAt(context.Background(), signer.Address(), nil)
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get balance")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	if isLessOrEq(*balance, amount) {
+	balance := types2.Amount{Int: *res}
+	if balance.IsLessOrEq(amount) {
 		Log(r).Error("insufficient balance")
 		ape.RenderErr(w, problems.InternalError())
 		return
@@ -97,13 +99,6 @@ func SendEvm(w http.ResponseWriter, r *http.Request) {
 	response := responses.NewTransactionResponse(signedTx.Hash().String())
 	w.WriteHeader(200)
 	ape.Render(w, response)
-}
-
-func isLessOrEq(x, y big.Int) bool {
-	if cmp := x.Cmp(&y); cmp <= 0 {
-		return true
-	}
-	return false
 }
 
 func signEvmTx(chainId *big.Int, tx *types.Transaction, privateKey *ecdsa.PrivateKey) (*types.Transaction, error) {

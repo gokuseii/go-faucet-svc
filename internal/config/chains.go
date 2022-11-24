@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"faucet-svc/internal/types"
+	client2 "github.com/eteu-technologies/near-api-go/pkg/client"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/portto/solana-go-sdk/client"
 	"gitlab.com/distributed_lab/figure"
@@ -109,11 +110,35 @@ func (c *chainer) Solana() types.SolanaChains {
 	return chs
 }
 
+func (c *chainer) Near() types.NearChain {
+	var cfg struct {
+		RPC string `fig:"rpc,required"`
+	}
+
+	err := figure.
+		Out(&cfg).
+		With(figure.BaseHooks).
+		From(kv.MustGetStringMap(c.getter, "near")).
+		Please()
+
+	if err != nil {
+		panic(errors.Wrap(err, "failed to figure out near chain"))
+	}
+
+	cli, err := client2.NewClient(cfg.RPC)
+	if err != nil {
+		panic(errors.Wrap(err, "failed to dial near rpc"))
+	}
+
+	return types.NewNearChain(&cli, cfg.RPC)
+}
+
 func (c *chainer) Chains() Chains {
 	return c.once.Do(func() interface{} {
 		evmChains := c.Evm()
 		solanaChains := c.Solana()
-		return NewChains(evmChains, solanaChains)
+		nearChains := c.Near()
+		return NewChains(evmChains, solanaChains, nearChains)
 	}).(Chains)
 }
 
@@ -181,17 +206,20 @@ func (v *duplicationSolanaChainsValidator) validate(conf solanaChain) error {
 type Chains interface {
 	Evm() types.EvmChains
 	Solana() types.SolanaChains
+	Near() types.NearChain
 }
 
 type chains struct {
 	evm    types.EvmChains
 	solana types.SolanaChains
+	near   types.NearChain
 }
 
-func NewChains(evm types.EvmChains, solana types.SolanaChains) Chains {
+func NewChains(evm types.EvmChains, solana types.SolanaChains, near types.NearChain) Chains {
 	return &chains{
 		evm:    evm,
 		solana: solana,
+		near:   near,
 	}
 }
 
@@ -201,4 +229,8 @@ func (c *chains) Evm() types.EvmChains {
 
 func (c *chains) Solana() types.SolanaChains {
 	return c.solana
+}
+
+func (c *chains) Near() types.NearChain {
+	return c.near
 }

@@ -18,10 +18,12 @@ func (s *service) router() chi.Router {
 			handlers.CtxSigners(s.signers),
 		),
 	)
+
 	r.Route("/faucet", func(r chi.Router) {
 		r.Route("/send", func(r chi.Router) {
 			r.Post("/evm", handlers.SendEvm)
 			r.Post("/solana", handlers.SendSolana)
+			r.Post("/near", handlers.SendNear)
 		})
 	})
 

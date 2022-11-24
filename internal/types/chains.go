@@ -1,6 +1,7 @@
 package types
 
 import (
+	client2 "github.com/eteu-technologies/near-api-go/pkg/client"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/portto/solana-go-sdk/client"
 )
@@ -113,4 +114,29 @@ func (chains SolanaChains) Set(key string, val SolanaChain) bool {
 
 	chains[key] = val
 	return true
+}
+
+type NearChain interface {
+	Client() *client2.Client
+	RPC() string
+}
+
+type nearChain struct {
+	client *client2.Client
+	rpc    string
+}
+
+func NewNearChain(client *client2.Client, rpc string) NearChain {
+	return &nearChain{
+		client: client,
+		rpc:    rpc,
+	}
+}
+
+func (chain *nearChain) Client() *client2.Client {
+	return chain.client
+}
+
+func (chain *nearChain) RPC() string {
+	return chain.rpc
 }

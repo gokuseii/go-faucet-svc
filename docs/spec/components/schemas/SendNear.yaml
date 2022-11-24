@@ -1,0 +1,19 @@
+allOf:
+  - $ref: '#/components/schemas/SendNearKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - to
+          - amount
+        properties:
+          to:
+            type: string
+            example: account.testnet
+          amount:
+            type: string
+            format: big.Int
+            example: 1000000000000000000000000
