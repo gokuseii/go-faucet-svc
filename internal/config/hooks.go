@@ -94,3 +94,39 @@ var signerHook = figure.Hooks{
 		}
 	},
 }
+
+var evmTokenHook = figure.Hooks{
+	"[]config.token": func(value interface{}) (reflect.Value, error) {
+
+		if value == nil {
+			return reflect.Value{}, nil
+		}
+
+		switch s := value.(type) {
+		case []interface{}:
+			tokens := make([]token, 0, len(s))
+			for _, val := range s {
+				value := val.(map[interface{}]interface{})
+				params := make(map[string]interface{})
+				for k, v := range value {
+					params[k.(string)] = v
+				}
+				var tk token
+				err := figure.
+					Out(&tk).
+					With(figure.BaseHooks).
+					From(params).
+					Please()
+
+				if err != nil {
+					return reflect.Value{}, errors.Wrap(err, "failed to figure out evm token")
+				}
+
+				tokens = append(tokens, tk)
+			}
+			return reflect.ValueOf(tokens), nil
+		default:
+			return reflect.Value{}, errors.New("unexpected type while figure []tokenChain")
+		}
+	},
+}

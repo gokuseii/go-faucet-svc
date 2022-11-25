@@ -21,6 +21,13 @@ evm:
       native_token: MATIC
       chain_id: 80001
       rpc: "https://polygon-testnet.public.blastapi.io"
+  external_tokens:
+    - name: "FaucetToken"
+      symbol: FAU
+      address: 0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc
+      type: ERC20
+      chains:
+        - 5
 
 solana:
   signer: ""

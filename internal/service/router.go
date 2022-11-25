@@ -16,6 +16,7 @@ func (s *service) router() chi.Router {
 			handlers.CtxLog(s.log),
 			handlers.CtxChains(s.chains),
 			handlers.CtxSigners(s.signers),
+			handlers.CtxTokens(s.tokens),
 		),
 	)
 

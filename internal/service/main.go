@@ -1,6 +1,7 @@
 package service
 
 import (
+	types2 "faucet-svc/internal/types"
 	"net"
 	"net/http"
 
@@ -16,6 +17,7 @@ type service struct {
 	listener net.Listener
 	chains   config.Chains
 	signers  config.Signers
+	tokens   types2.EvmTokens
 }
 
 func (s *service) run() error {
@@ -36,6 +38,7 @@ func newService(cfg config.Config) *service {
 		listener: cfg.Listener(),
 		chains:   cfg.Chains(),
 		signers:  cfg.Signers(),
+		tokens:   cfg.EvmTokens(),
 	}
 }
 

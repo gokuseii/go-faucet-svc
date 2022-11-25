@@ -5,6 +5,8 @@ import (
 	"math/big"
 )
 
+var ZeroValue = Amount{Int: *big.NewInt(0)}
+
 type Amount struct {
 	big.Int
 }

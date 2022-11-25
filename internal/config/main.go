@@ -16,6 +16,7 @@ type Config interface {
 
 	Chainer
 	Signerer
+	Tokens
 }
 
 type config struct {
@@ -27,6 +28,7 @@ type config struct {
 
 	Chainer
 	Signerer
+	Tokens
 }
 
 func New(getter kv.Getter) Config {
@@ -38,5 +40,6 @@ func New(getter kv.Getter) Config {
 		Logger:     comfig.NewLogger(getter, comfig.LoggerOpts{}),
 		Chainer:    NewChainer(getter),
 		Signerer:   NewSignerer(getter),
+		Tokens:     NewTokens(getter),
 	}
 }

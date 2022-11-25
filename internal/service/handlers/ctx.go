@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"faucet-svc/internal/config"
+	"faucet-svc/internal/types"
 	"net/http"
 
 	"gitlab.com/distributed_lab/logan/v3"
@@ -14,6 +15,7 @@ const (
 	logCtxKey ctxKey = iota
 	chainerCtxKey
 	signererCtxKey
+	tokensCtxKey
 )
 
 func CtxLog(entry *logan.Entry) func(context.Context) context.Context {
@@ -44,4 +46,14 @@ func CtxChains(entry config.Chains) func(context.Context) context.Context {
 
 func Chains(r *http.Request) config.Chains {
 	return r.Context().Value(chainerCtxKey).(config.Chains)
+}
+
+func CtxTokens(entry types.EvmTokens) func(context.Context) context.Context {
+	return func(ctx context.Context) context.Context {
+		return context.WithValue(ctx, tokensCtxKey, entry)
+	}
+}
+
+func Tokens(r *http.Request) types.EvmTokens {
+	return r.Context().Value(tokensCtxKey).(types.EvmTokens)
 }
