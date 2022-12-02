@@ -21,6 +21,8 @@ func (s *service) router() chi.Router {
 	)
 
 	r.Route("/faucet", func(r chi.Router) {
+		r.Get("/chains", handlers.GetChainList)
+		r.Get("/tokens", handlers.GetTokenList)
 		r.Route("/send", func(r chi.Router) {
 			r.Post("/evm", handlers.SendEvm)
 			r.Post("/solana", handlers.SendSolana)

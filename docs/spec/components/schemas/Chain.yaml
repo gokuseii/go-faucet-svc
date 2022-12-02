@@ -1,0 +1,20 @@
+allOf:
+  - $ref: '#/components/schemas/ChainKey'
+  - type: object
+    required:
+      - attributes
+    properties:
+      attributes:
+        type: object
+        required:
+          - name
+          - balance
+          - native_token
+        properties:
+          name:
+            type: string
+          balance:
+            type: float64
+          native_token:
+            type: string
+            example: GETH

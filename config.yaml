@@ -9,23 +9,28 @@ evm:
       native_token: GETH
       id: 5
       rpc: "https://eth-goerli.public.blastapi.io"
+      decimals: 18
     - name: "Sepolia"
       native_token: SEP
       id: 11155111
       rpc: "https://rpc.sepolia.org"
+      decimals: 18
     - name: "Binance Smart Chain Testnet"
       native_token: tBNB
       id: 97
       rpc: "https://bsctestapi.terminet.io/rpc"
+      decimals: 18
     - name: "Mumbai"
       native_token: MATIC
       id: 80001
       rpc: "https://polygon-testnet.public.blastapi.io"
+      decimals: 18
   external_tokens:
     - name: "FaucetToken"
       symbol: FAU
       address: 0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc
       type: ERC20
+      decimals: 18
       chains:
         - 5
 
@@ -34,14 +39,17 @@ solana:
   chains:
     - id: "testnet"
       rpc: "https://api.testnet.solana.com"
+      decimals: 9
     - id: "devnet"
       rpc: "https://api.devnet.solana.com"
+      decimals: 9
 
 near:
   signer_id: ""
-  signer: "ed25519:..."
+  signer: ""
   id: "testnet"
   rpc: "https://rpc.testnet.near.org"
+  decimals: 24
 
 listener:
   addr: :8000

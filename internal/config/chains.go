@@ -27,15 +27,17 @@ func NewChainer(getter kv.Getter) Chainer {
 }
 
 type evmChain struct {
-	ID          string `fig:"id,required"`
-	Name        string `fig:"name,required"`
-	RPC         string `fig:"rpc,required"`
-	NativeToken string `fig:"native_token,required"`
+	ID          string  `fig:"id,required"`
+	Name        string  `fig:"name,required"`
+	RPC         string  `fig:"rpc,required"`
+	NativeToken string  `fig:"native_token,required"`
+	Decimals    float64 `fig:"decimals,required"`
 }
 
 type solanaChain struct {
-	ID  string `fig:"id,required"`
-	RPC string `fig:"rpc,required"`
+	ID       string  `fig:"id,required"`
+	RPC      string  `fig:"rpc,required"`
+	Decimals float64 `fig:"decimals,required"`
 }
 
 func (c *chainer) Evm() types.EvmChains {
@@ -72,7 +74,7 @@ func (c *chainer) Evm() types.EvmChains {
 			}
 		}
 
-		ch := types.NewEvmChain(cli, conf.ID, conf.Name, conf.RPC, conf.NativeToken)
+		ch := types.NewEvmChain(cli, conf.ID, conf.Name, conf.RPC, conf.NativeToken, conf.Decimals)
 		chs.Set(conf.ID, ch)
 	}
 	return chs
@@ -104,7 +106,7 @@ func (c *chainer) Solana() types.SolanaChains {
 			panic(errors.Errorf("failed to get solana chain version, chain %s", conf.ID))
 		}
 
-		ch := types.NewSolanaChain(cli, conf.ID, conf.RPC)
+		ch := types.NewSolanaChain(cli, conf.ID, conf.RPC, conf.Decimals)
 		chs.Set(conf.ID, ch)
 	}
 	return chs
@@ -112,8 +114,9 @@ func (c *chainer) Solana() types.SolanaChains {
 
 func (c *chainer) Near() types.NearChain {
 	var cfg struct {
-		ID  string `fig:"id,required"`
-		RPC string `fig:"rpc,required"`
+		ID       string  `fig:"id,required"`
+		RPC      string  `fig:"rpc,required"`
+		Decimals float64 `fig:"decimals,required"`
 	}
 
 	err := figure.
@@ -131,7 +134,7 @@ func (c *chainer) Near() types.NearChain {
 		panic(errors.Wrap(err, "failed to dial near rpc"))
 	}
 
-	return types.NewNearChain(&cli, cfg.ID, cfg.RPC)
+	return types.NewNearChain(&cli, cfg.ID, cfg.RPC, cfg.Decimals)
 }
 
 func (c *chainer) Chains() Chains {

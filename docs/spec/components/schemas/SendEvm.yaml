@@ -16,11 +16,11 @@ allOf:
             example: GETH
           to:
             type: string
-            example: 0xbb51db214B235847Ec739f118A034A1d3C2070a7
+            example: "0xbb51db214B235847Ec739f118A034A1d3C2070a7"
           amount:
             type: string
             format: big.Int
             example: 1000000000000000
           token_address:
             type: string
-            example: 0xba62bcfcaafc6622853cca2be6ac7d845bc0f2dc
+            example: "0xba62bcfcaafc6622853cca2be6ac7d845bc0f2dc"

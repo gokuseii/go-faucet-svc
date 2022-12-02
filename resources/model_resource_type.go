@@ -11,4 +11,5 @@ const (
 	EVM    ResourceType = "evm"
 	SOLANA ResourceType = "solana"
 	NEAR   ResourceType = "near"
+	ERC20  ResourceType = "ERC20"
 )

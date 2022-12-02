@@ -1,0 +1,17 @@
+get:
+  tags:
+    - Tokens
+  summary: Get token list
+  operationId: getTokenList
+  responses:
+    '200':
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Token'

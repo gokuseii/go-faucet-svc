@@ -1,0 +1,28 @@
+allOf:
+- $ref: '#/components/schemas/TokenKey'
+- type: object
+  required:
+    - attributes
+    - relationships
+  properties:
+    relationships:
+      type: object
+      required:
+        - chain
+      properties:
+        chain:
+          $ref: '#/components/schemas/ChainKey'
+    attributes:
+      type: object
+      required:
+        - name
+        - balance
+        - symbol
+      properties:
+        name:
+          type: string
+        balance:
+          type: float64
+        symbol:
+          type: string
+          example: FAU

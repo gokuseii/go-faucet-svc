@@ -27,6 +27,7 @@ type EvmChain interface {
 	Name() string
 	RPC() string
 	NativeToken() string
+	Decimals() float64
 	GetGasPrice(to common.Address, data []byte) (*big.Int, uint64, error)
 	BuildTx(signer EvmSigner, to common.Address, amount big.Int, tokenAddress *common.Address) (*types.Transaction, error)
 }
@@ -37,15 +38,17 @@ type evmChain struct {
 	name        string
 	rpc         string
 	nativeToken string
+	decimals    float64
 }
 
-func NewEvmChain(client *ethclient.Client, id, name, rpc, nativeToken string) EvmChain {
+func NewEvmChain(client *ethclient.Client, id, name, rpc, nativeToken string, decimals float64) EvmChain {
 	return &evmChain{
 		client:      client,
 		id:          id,
 		name:        name,
 		rpc:         rpc,
 		nativeToken: nativeToken,
+		decimals:    decimals,
 	}
 }
 
@@ -63,6 +66,10 @@ func (c *evmChain) RPC() string {
 
 func (c *evmChain) NativeToken() string {
 	return c.nativeToken
+}
+
+func (c *evmChain) Decimals() float64 {
+	return c.decimals
 }
 
 func (c *evmChain) Client() *ethclient.Client {
@@ -148,20 +155,23 @@ type SolanaChain interface {
 	Client() *client.Client
 	ID() string
 	RPC() string
+	Decimals() float64
 	BuildTx(signer types3.Account, receiver common2.PublicKey, amount uint64) (types3.Transaction, error)
 }
 
 type solanaChain struct {
-	client *client.Client
-	id     string
-	rpc    string
+	client   *client.Client
+	id       string
+	rpc      string
+	decimals float64
 }
 
-func NewSolanaChain(client *client.Client, id string, rpc string) SolanaChain {
+func NewSolanaChain(client *client.Client, id, rpc string, decimals float64) SolanaChain {
 	return &solanaChain{
-		client: client,
-		id:     id,
-		rpc:    rpc,
+		client:   client,
+		id:       id,
+		rpc:      rpc,
+		decimals: decimals,
 	}
 }
 
@@ -175,6 +185,10 @@ func (c *solanaChain) ID() string {
 
 func (c *solanaChain) RPC() string {
 	return c.rpc
+}
+
+func (c *solanaChain) Decimals() float64 {
+	return c.decimals
 }
 
 func (c *solanaChain) BuildTx(signer types3.Account, receiver common2.PublicKey, amount uint64) (tx types3.Transaction, err error) {
@@ -227,23 +241,27 @@ func (chains SolanaChains) Set(key string, val SolanaChain) bool {
 
 type NearChain interface {
 	Client() *client2.Client
+	ID() string
 	RPC() string
+	Decimals() float64
 	GetAccountInfo(id string) (AccountInfo, error)
 	BuildTx(signer NearSigner, receiverId string, amount big.Int) (transaction.Transaction, error)
 	SignAndSerializeTx(signer NearSigner, tx transaction.Transaction) (string, error)
 }
 
 type nearChain struct {
-	client *client2.Client
-	id     string
-	rpc    string
+	client   *client2.Client
+	id       string
+	rpc      string
+	decimals float64
 }
 
-func NewNearChain(client *client2.Client, id, rpc string) NearChain {
+func NewNearChain(client *client2.Client, id, rpc string, decimals float64) NearChain {
 	return &nearChain{
-		client: client,
-		id:     id,
-		rpc:    rpc,
+		client:   client,
+		id:       id,
+		rpc:      rpc,
+		decimals: decimals,
 	}
 }
 
@@ -257,6 +275,10 @@ func (c *nearChain) ID() string {
 
 func (c *nearChain) RPC() string {
 	return c.rpc
+}
+
+func (c *nearChain) Decimals() float64 {
+	return c.decimals
 }
 
 func (c *nearChain) GetAccountInfo(id string) (acc AccountInfo, err error) {

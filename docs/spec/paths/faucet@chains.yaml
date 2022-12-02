@@ -1,0 +1,24 @@
+get:
+  tags:
+    - Chains
+  summary: Get chain list
+  operationId: getChainList
+  responses:
+    '200':
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chain'
+    '400':
+      description: invalid request
+    404:
+      description: chain id or token symbol not supported
+    '500':
+      description: internal error
+
