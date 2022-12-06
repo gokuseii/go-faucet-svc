@@ -47,14 +47,16 @@ func SendNear(w http.ResponseWriter, r *http.Request) {
 	_, err = chain.GetAccountInfo(receiverId)
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get receiver account")
-		ape.RenderErr(w, problems.NotFound())
+		ape.RenderErr(w, problems.BadRequest(
+			validation.Errors{"/data/attributes/receiver": errors.New("receiver account not exist")},
+		)...)
 		return
 	}
 
 	signerInfo, err := chain.GetAccountInfo(signer.ID())
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get signer account")
-		ape.RenderErr(w, problems.NotFound())
+		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 

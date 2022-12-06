@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"faucet-svc/doorman"
 	"faucet-svc/internal/config"
 	"faucet-svc/internal/types"
 	"net/http"
@@ -16,6 +17,7 @@ const (
 	chainerCtxKey
 	signererCtxKey
 	tokensCtxKey
+	doormanConnectorCtxKey
 )
 
 func CtxLog(entry *logan.Entry) func(context.Context) context.Context {
@@ -56,4 +58,13 @@ func CtxTokens(entry types.EvmTokens) func(context.Context) context.Context {
 
 func Tokens(r *http.Request) types.EvmTokens {
 	return r.Context().Value(tokensCtxKey).(types.EvmTokens)
+}
+
+func CtxDoormanConnector(entry doorman.Connector) func(context.Context) context.Context {
+	return func(ctx context.Context) context.Context {
+		return context.WithValue(ctx, doormanConnectorCtxKey, entry)
+	}
+}
+func DoormanConnector(r *http.Request) doorman.Connector {
+	return r.Context().Value(doormanConnectorCtxKey).(doorman.Connector)
 }

@@ -51,6 +51,9 @@ near:
   rpc: "https://rpc.testnet.near.org"
   decimals: 24
 
+doorman:
+  service_url: http://localhost:8000
+
 listener:
   addr: :8000
 

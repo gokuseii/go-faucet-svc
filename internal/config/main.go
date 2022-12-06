@@ -17,6 +17,7 @@ type Config interface {
 	Chainer
 	Signerer
 	Tokens
+	DoormanConfiger
 }
 
 type config struct {
@@ -29,17 +30,19 @@ type config struct {
 	Chainer
 	Signerer
 	Tokens
+	DoormanConfiger
 }
 
 func New(getter kv.Getter) Config {
 	return &config{
-		getter:     getter,
-		Databaser:  pgdb.NewDatabaser(getter),
-		Copuser:    copus.NewCopuser(getter),
-		Listenerer: comfig.NewListenerer(getter),
-		Logger:     comfig.NewLogger(getter, comfig.LoggerOpts{}),
-		Chainer:    NewChainer(getter),
-		Signerer:   NewSignerer(getter),
-		Tokens:     NewTokens(getter),
+		getter:          getter,
+		Databaser:       pgdb.NewDatabaser(getter),
+		Copuser:         copus.NewCopuser(getter),
+		Listenerer:      comfig.NewListenerer(getter),
+		Logger:          comfig.NewLogger(getter, comfig.LoggerOpts{}),
+		Chainer:         NewChainer(getter),
+		Signerer:        NewSignerer(getter),
+		Tokens:          NewTokens(getter),
+		DoormanConfiger: NewDoormanConfiger(getter),
 	}
 }
