@@ -13,15 +13,15 @@ import (
 
 func GetChainList(w http.ResponseWriter, r *http.Request) {
 
-	chains := Chains(r)
-	signers := Signers(r)
+	chains := helpers.Chains(r)
+	signers := helpers.Signers(r)
 
 	var chainList []resources.Chain
 	for _, chain := range chains.Evm() {
 		signer := signers.Evm()
 		balance, err := chain.Client().BalanceAt(context.Background(), signer.Address(), nil)
 		if err != nil {
-			Log(r).WithError(err).Error("failed to get evm balance")
+			helpers.Log(r).WithError(err).Error("failed to get evm balance")
 			ape.RenderErr(w, problems.InternalError())
 			return
 		}
@@ -40,7 +40,7 @@ func GetChainList(w http.ResponseWriter, r *http.Request) {
 		signer := signers.Solana()
 		balance, err := chain.Client().GetBalance(context.Background(), signer.PublicKey.String())
 		if err != nil {
-			Log(r).WithError(err).Error("failed to get solana balance")
+			helpers.Log(r).WithError(err).Error("failed to get solana balance")
 			ape.RenderErr(w, problems.InternalError())
 			return
 		}
@@ -61,7 +61,7 @@ func GetChainList(w http.ResponseWriter, r *http.Request) {
 	near := chains.Near()
 	acc, err := near.GetAccountInfo(nearSigner.ID())
 	if err != nil {
-		Log(r).WithError(err).Error("failed to get near balance")
+		helpers.Log(r).WithError(err).Error("failed to get near balance")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}

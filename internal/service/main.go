@@ -3,6 +3,7 @@ package service
 import (
 	"faucet-svc/doorman"
 	types2 "faucet-svc/internal/types"
+	"gitlab.com/distributed_lab/kit/pgdb"
 	"net"
 	"net/http"
 
@@ -20,6 +21,7 @@ type service struct {
 	signers  config.Signers
 	tokens   types2.EvmTokens
 	doorman  doorman.Connector
+	db       *pgdb.DB
 }
 
 func (s *service) run() error {
@@ -42,6 +44,7 @@ func newService(cfg config.Config) *service {
 		signers:  cfg.Signers(),
 		tokens:   cfg.EvmTokens(),
 		doorman:  cfg.DoormanConnector(),
+		db:       cfg.DB(),
 	}
 }
 

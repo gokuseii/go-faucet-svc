@@ -2,6 +2,9 @@ log:
   level: debug
   disable_sentry: true
 
+db:
+  url: "postgres://faucet:faucet@localhost/faucet?sslmode=disable"
+
 evm:
   signer: ""
   chains:

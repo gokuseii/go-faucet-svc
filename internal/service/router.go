@@ -1,7 +1,9 @@
 package service
 
 import (
+	"faucet-svc/internal/data/pg"
 	"faucet-svc/internal/service/handlers"
+	"faucet-svc/internal/service/helpers"
 	"faucet-svc/internal/service/middlewares"
 	"github.com/go-chi/chi"
 	"gitlab.com/distributed_lab/ape"
@@ -14,11 +16,12 @@ func (s *service) router() chi.Router {
 		ape.RecoverMiddleware(s.log),
 		ape.LoganMiddleware(s.log),
 		ape.CtxMiddleware(
-			handlers.CtxLog(s.log),
-			handlers.CtxChains(s.chains),
-			handlers.CtxSigners(s.signers),
-			handlers.CtxTokens(s.tokens),
-			handlers.CtxDoormanConnector(s.doorman),
+			helpers.CtxLog(s.log),
+			helpers.CtxChains(s.chains),
+			helpers.CtxSigners(s.signers),
+			helpers.CtxTokens(s.tokens),
+			helpers.CtxDoormanConnector(s.doorman),
+			helpers.CtxBalancesQ(pg.NewBalancesQ(s.db)),
 		),
 	)
 

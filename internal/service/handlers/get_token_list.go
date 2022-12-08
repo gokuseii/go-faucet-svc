@@ -14,9 +14,9 @@ import (
 
 func GetTokenList(w http.ResponseWriter, r *http.Request) {
 
-	chains := Chains(r).Evm()
-	signer := Signers(r).Evm()
-	tokens := Tokens(r)
+	chains := helpers.Chains(r).Evm()
+	signer := helpers.Signers(r).Evm()
+	tokens := helpers.Tokens(r)
 
 	var tokenList []resources.Token
 	for _, token := range tokens {
@@ -28,21 +28,21 @@ func GetTokenList(w http.ResponseWriter, r *http.Request) {
 
 			contract, err := contracts.NewErc20(common.HexToAddress(token.Address()), chain.Client())
 			if err != nil {
-				Log(r).WithError(err).Errorf("failed to create token instance %s", token.Address())
+				helpers.Log(r).WithError(err).Errorf("failed to create token instance %s", token.Address())
 				ape.RenderErr(w, problems.InternalError())
 				return
 			}
 
 			balance, err := contract.BalanceOf(&bind.CallOpts{}, signer.Address())
 			if err != nil {
-				Log(r).WithError(err).Errorf("failed to get balance of token %s", token.Address())
+				helpers.Log(r).WithError(err).Errorf("failed to get balance of token %s", token.Address())
 				ape.RenderErr(w, problems.InternalError())
 				return
 			}
 
 			decimals, err := contract.Decimals(&bind.CallOpts{})
 			if err != nil {
-				Log(r).WithError(err).Errorf("failed to get decimals of token %s", token.Address())
+				helpers.Log(r).WithError(err).Errorf("failed to get decimals of token %s", token.Address())
 				ape.RenderErr(w, problems.InternalError())
 				return
 			}
