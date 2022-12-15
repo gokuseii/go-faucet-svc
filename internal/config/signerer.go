@@ -5,7 +5,7 @@ import (
 	"faucet-svc/internal/types"
 	types3 "github.com/eteu-technologies/near-api-go/pkg/types"
 	types2 "github.com/portto/solana-go-sdk/types"
-	"gitlab.com/distributed_lab/figure"
+	"gitlab.com/distributed_lab/figure/v3"
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/logan/v3/errors"
@@ -31,7 +31,7 @@ func (s *signerer) Evm() types.EvmSigner {
 
 	err := figure.
 		Out(&cfg).
-		With(figure.BaseHooks, signerHook).
+		With(signerHook).
 		From(kv.MustGetStringMap(s.getter, "evm")).
 		Please()
 
@@ -54,7 +54,6 @@ func (s *signerer) Solana() types2.Account {
 
 	err := figure.
 		Out(&cfg).
-		With(figure.BaseHooks).
 		From(kv.MustGetStringMap(s.getter, "solana")).
 		Please()
 
@@ -78,7 +77,6 @@ func (s *signerer) Near() types.NearSigner {
 
 	err := figure.
 		Out(&cfg).
-		With(figure.BaseHooks).
 		From(kv.MustGetStringMap(s.getter, "near")).
 		Please()
 

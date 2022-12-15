@@ -3,7 +3,7 @@ package config
 import (
 	"faucet-svc/internal/types"
 	"github.com/ethereum/go-ethereum/common"
-	"gitlab.com/distributed_lab/figure"
+	"gitlab.com/distributed_lab/figure/v3"
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/logan/v3/errors"
@@ -39,7 +39,6 @@ func (c *tokens) EvmTokens() types.EvmTokens {
 
 	err := figure.
 		Out(&cfg).
-		With(figure.BaseHooks, evmTokenHook).
 		From(kv.MustGetStringMap(c.getter, "evm")).
 		Please()
 

@@ -6,7 +6,7 @@ import (
 	client2 "github.com/eteu-technologies/near-api-go/pkg/client"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/portto/solana-go-sdk/client"
-	"gitlab.com/distributed_lab/figure"
+	"gitlab.com/distributed_lab/figure/v3"
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
 	"gitlab.com/distributed_lab/logan/v3"
@@ -48,7 +48,7 @@ func (c *chainer) Evm() types.EvmChains {
 
 	err := figure.
 		Out(&cfg).
-		With(figure.BaseHooks, evmChainHook).
+		With(figure.BaseHooks).
 		From(kv.MustGetStringMap(c.getter, "evm")).
 		Please()
 
@@ -87,7 +87,6 @@ func (c *chainer) Solana() types.SolanaChains {
 
 	err := figure.
 		Out(&cfg).
-		With(figure.BaseHooks, solanaChainHook).
 		From(kv.MustGetStringMap(c.getter, "solana")).
 		Please()
 

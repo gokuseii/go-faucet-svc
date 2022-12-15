@@ -191,7 +191,7 @@ github.com/rubenv/sql-migrate/sqlparse
 ## explicit
 github.com/shirou/gopsutil/cpu
 github.com/shirou/gopsutil/internal/common
-# github.com/sirupsen/logrus v1.8.1
+# github.com/sirupsen/logrus v1.9.0
 ## explicit; go 1.13
 github.com/sirupsen/logrus
 # github.com/spf13/afero v1.9.3
@@ -234,6 +234,9 @@ gitlab.com/distributed_lab/ape/problems
 # gitlab.com/distributed_lab/figure v2.1.0+incompatible
 ## explicit
 gitlab.com/distributed_lab/figure
+# gitlab.com/distributed_lab/figure/v3 v3.1.2
+## explicit; go 1.19
+gitlab.com/distributed_lab/figure/v3
 # gitlab.com/distributed_lab/kit v1.11.1
 ## explicit; go 1.14
 gitlab.com/distributed_lab/kit/comfig
