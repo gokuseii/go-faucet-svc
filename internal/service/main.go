@@ -17,7 +17,7 @@ type service struct {
 	log      *logan.Entry
 	copus    types.Copus
 	listener net.Listener
-	chains   config.Chains
+	chains   types2.Chains
 	signers  config.Signers
 	tokens   types2.EvmTokens
 	doorman  doorman.Connector
@@ -36,12 +36,13 @@ func (s *service) run() error {
 }
 
 func newService(cfg config.Config) *service {
+	signers := cfg.Signers()
 	return &service{
 		log:      cfg.Log(),
 		copus:    cfg.Copus(),
 		listener: cfg.Listener(),
-		chains:   cfg.Chains(),
-		signers:  cfg.Signers(),
+		chains:   cfg.Chains(signers),
+		signers:  signers,
 		tokens:   cfg.EvmTokens(),
 		doorman:  cfg.DoormanConnector(),
 		db:       cfg.DB(),

@@ -6,23 +6,26 @@ type EvmToken interface {
 	Address() string
 	Kind() string
 	Chains() []string
+	Decimals() float64
 }
 
 type evmToken struct {
-	name    string
-	symbol  string
-	address string
-	kind    string
-	chains  []string
+	name     string
+	symbol   string
+	address  string
+	kind     string
+	chains   []string
+	decimals float64
 }
 
-func NewEvmToken(name, symbol, address, kind string, chains []string) EvmToken {
+func NewEvmToken(name, symbol, address, kind string, chains []string, decimals float64) EvmToken {
 	return &evmToken{
-		name:    name,
-		symbol:  symbol,
-		address: address,
-		kind:    kind,
-		chains:  chains,
+		name:     name,
+		symbol:   symbol,
+		address:  address,
+		kind:     kind,
+		chains:   chains,
+		decimals: decimals,
 	}
 }
 
@@ -39,11 +42,15 @@ func (t *evmToken) Address() string {
 }
 
 func (t *evmToken) Kind() string {
-	return t.address
+	return t.kind
 }
 
 func (t *evmToken) Chains() []string {
 	return t.chains
+}
+
+func (t *evmToken) Decimals() float64 {
+	return t.decimals
 }
 
 type EvmTokens map[string]EvmToken

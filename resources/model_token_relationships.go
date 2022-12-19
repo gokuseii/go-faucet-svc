@@ -5,5 +5,5 @@
 package resources
 
 type TokenRelationships struct {
-	Chain Relation `json:"chain"`
+	Chain Chain `json:"chain"`
 }

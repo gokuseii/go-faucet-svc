@@ -1,0 +1,32 @@
+post:
+  tags:
+    - Send
+  summary: Send tokens to address
+  operationId: send
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: '#/components/schemas/Send'
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              data:
+                $ref: '#/components/schemas/Transaction'
+    '400':
+      description: invalid request
+    404:
+      description: chain or token not found
+    '500':
+      description: internal error
+

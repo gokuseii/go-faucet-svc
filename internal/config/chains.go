@@ -6,6 +6,7 @@ import (
 	client2 "github.com/eteu-technologies/near-api-go/pkg/client"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/portto/solana-go-sdk/client"
+	types3 "github.com/portto/solana-go-sdk/types"
 	"gitlab.com/distributed_lab/figure/v3"
 	"gitlab.com/distributed_lab/kit/comfig"
 	"gitlab.com/distributed_lab/kit/kv"
@@ -14,7 +15,7 @@ import (
 )
 
 type Chainer interface {
-	Chains() Chains
+	Chains(signers Signers) types.Chains
 }
 
 type chainer struct {
@@ -40,7 +41,7 @@ type solanaChain struct {
 	Decimals float64 `fig:"decimals,required"`
 }
 
-func (c *chainer) Evm() types.EvmChains {
+func (c *chainer) Evm(chains *types.Chains, signer types.EvmSigner) {
 
 	var cfg struct {
 		Chains []evmChain `fig:"chains,required"`
@@ -57,7 +58,6 @@ func (c *chainer) Evm() types.EvmChains {
 	}
 
 	validator := newDuplicationEvmChainValidator()
-	chs := types.EvmChains{}
 	for _, conf := range cfg.Chains {
 		if err := validator.validate(conf); err != nil {
 			panic(err)
@@ -68,19 +68,22 @@ func (c *chainer) Evm() types.EvmChains {
 			panic(errors.Wrap(err, "failed to dial rpc", logan.F{"chain_id": conf.ID}))
 		}
 
-		if id, err := cli.ChainID(context.Background()); err == nil {
-			if conf.ID != id.String() {
-				panic(errors.Errorf("%s has different rpc and conf chain id", conf.Name))
-			}
+		id, err := cli.ChainID(context.Background())
+		if err != nil {
+			panic(errors.Wrap(err, "chain has broken rpc", logan.F{"chain_id": conf.ID, "chain_rpc": conf.RPC}))
 		}
 
-		ch := types.NewEvmChain(cli, conf.ID, conf.Name, conf.RPC, conf.NativeToken, conf.Decimals)
-		chs.Set(conf.ID, ch)
+		if conf.ID != id.String() {
+			panic(errors.Errorf("%s has different rpc and conf chain id", conf.Name))
+		}
+
+		ch := types.NewEvmChain(cli, signer, conf.ID, conf.Name, conf.NativeToken, conf.RPC, conf.Decimals)
+		chains.Set(ch.ID(), ch.Kind(), ch)
 	}
-	return chs
+	return
 }
 
-func (c *chainer) Solana() types.SolanaChains {
+func (c *chainer) Solana(chains *types.Chains, signer types3.Account) {
 	var cfg struct {
 		Chains []solanaChain `fig:"chains,required"`
 	}
@@ -95,7 +98,6 @@ func (c *chainer) Solana() types.SolanaChains {
 	}
 
 	validator := newDuplicationSolanaChainsValidator()
-	chs := types.SolanaChains{}
 	for _, conf := range cfg.Chains {
 		if err := validator.validate(conf); err != nil {
 			panic(err)
@@ -105,13 +107,13 @@ func (c *chainer) Solana() types.SolanaChains {
 			panic(errors.Errorf("failed to get solana chain version, chain %s", conf.ID))
 		}
 
-		ch := types.NewSolanaChain(cli, conf.ID, conf.RPC, conf.Decimals)
-		chs.Set(conf.ID, ch)
+		ch := types.NewSolanaChain(cli, signer, conf.ID, "SOL", conf.RPC, conf.Decimals)
+		chains.Set(ch.ID(), ch.Kind(), ch)
 	}
-	return chs
+	return
 }
 
-func (c *chainer) Near() types.NearChain {
+func (c *chainer) Near(chains *types.Chains, signer types.NearSigner) {
 	var cfg struct {
 		ID       string  `fig:"id,required"`
 		RPC      string  `fig:"rpc,required"`
@@ -132,17 +134,19 @@ func (c *chainer) Near() types.NearChain {
 	if err != nil {
 		panic(errors.Wrap(err, "failed to dial near rpc"))
 	}
-
-	return types.NewNearChain(&cli, cfg.ID, cfg.RPC, cfg.Decimals)
+	ch := types.NewNearChain(&cli, signer, cfg.ID, cfg.RPC, "NEAR", cfg.Decimals)
+	chains.Set(ch.ID(), ch.Kind(), ch)
+	return
 }
 
-func (c *chainer) Chains() Chains {
+func (c *chainer) Chains(signers Signers) types.Chains {
 	return c.once.Do(func() interface{} {
-		evmChains := c.Evm()
-		solanaChains := c.Solana()
-		nearChains := c.Near()
-		return NewChains(evmChains, solanaChains, nearChains)
-	}).(Chains)
+		chains := types.Chains{}
+		c.Evm(&chains, signers.Evm())
+		c.Solana(&chains, signers.Solana())
+		c.Near(&chains, signers.Near())
+		return chains
+	}).(types.Chains)
 }
 
 type duplicationEvmChainsValidator struct {
@@ -204,36 +208,4 @@ func (v *duplicationSolanaChainsValidator) validate(conf solanaChain) error {
 	v.rpcMap[conf.RPC] = struct{}{}
 
 	return nil
-}
-
-type Chains interface {
-	Evm() types.EvmChains
-	Solana() types.SolanaChains
-	Near() types.NearChain
-}
-
-type chains struct {
-	evm    types.EvmChains
-	solana types.SolanaChains
-	near   types.NearChain
-}
-
-func NewChains(evm types.EvmChains, solana types.SolanaChains, near types.NearChain) Chains {
-	return &chains{
-		evm:    evm,
-		solana: solana,
-		near:   near,
-	}
-}
-
-func (c *chains) Evm() types.EvmChains {
-	return c.evm
-}
-
-func (c *chains) Solana() types.SolanaChains {
-	return c.solana
-}
-
-func (c *chains) Near() types.NearChain {
-	return c.near
 }

@@ -3,7 +3,6 @@ allOf:
 - type: object
   required:
     - attributes
-    - relationships
   properties:
     relationships:
       type: object
@@ -11,7 +10,7 @@ allOf:
         - chain
       properties:
         chain:
-          $ref: '#/components/schemas/ChainKey'
+          $ref: '#/components/schemas/Chain'
     attributes:
       type: object
       required:

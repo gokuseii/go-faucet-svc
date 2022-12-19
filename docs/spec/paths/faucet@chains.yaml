@@ -15,10 +15,6 @@ get:
                 type: array
                 items:
                   $ref: '#/components/schemas/Chain'
-    '400':
-      description: invalid request
-    404:
-      description: chain id or token symbol not supported
     '500':
       description: internal error
 

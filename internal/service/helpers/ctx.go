@@ -42,14 +42,14 @@ func Signers(r *http.Request) config.Signers {
 	return r.Context().Value(signererCtxKey).(config.Signers)
 }
 
-func CtxChains(entry config.Chains) func(context.Context) context.Context {
+func CtxChains(entry types.Chains) func(context.Context) context.Context {
 	return func(ctx context.Context) context.Context {
 		return context.WithValue(ctx, chainerCtxKey, entry)
 	}
 }
 
-func Chains(r *http.Request) config.Chains {
-	return r.Context().Value(chainerCtxKey).(config.Chains)
+func Chains(r *http.Request) types.Chains {
+	return r.Context().Value(chainerCtxKey).(types.Chains)
 }
 
 func CtxTokens(entry types.EvmTokens) func(context.Context) context.Context {

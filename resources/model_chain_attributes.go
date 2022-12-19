@@ -5,7 +5,7 @@
 package resources
 
 type ChainAttributes struct {
-	Balance     float64 `json:"balance"`
-	Name        string  `json:"name"`
-	NativeToken string  `json:"native_token"`
+	Balance     *float64 `json:"balance,omitempty"`
+	Name        string   `json:"name"`
+	NativeToken string   `json:"native_token"`
 }

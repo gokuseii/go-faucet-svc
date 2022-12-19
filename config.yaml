@@ -21,7 +21,7 @@ evm:
     - name: "Binance Smart Chain Testnet"
       native_token: tBNB
       id: 97
-      rpc: "https://bsctestapi.terminet.io/rpc"
+      rpc: "https://bsc-testnet.public.blastapi.io"
       decimals: 18
     - name: "Mumbai"
       native_token: MATIC

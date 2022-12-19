@@ -24,11 +24,12 @@ func NewTokens(getter kv.Getter) Tokens {
 }
 
 type token struct {
-	Name    string   `fig:"name,required"`
-	Symbol  string   `fig:"symbol,required"`
-	Address string   `fig:"address,required"`
-	Kind    string   `fig:"type,required"`
-	Chains  []string `fig:"chains,required"`
+	Name     string   `fig:"name,required"`
+	Symbol   string   `fig:"symbol,required"`
+	Address  string   `fig:"address,required"`
+	Kind     string   `fig:"type,required"`
+	Chains   []string `fig:"chains,required"`
+	Decimals float64  `fig:"decimals,required"`
 }
 
 func (c *tokens) EvmTokens() types.EvmTokens {
@@ -64,7 +65,7 @@ func (c *tokens) EvmTokens() types.EvmTokens {
 			panic(errors.Errorf("Not found supported chains %s", conf.Address))
 		}
 
-		tk := types.NewEvmToken(conf.Name, conf.Symbol, conf.Address, conf.Kind, conf.Chains)
+		tk := types.NewEvmToken(conf.Name, conf.Symbol, conf.Address, conf.Kind, conf.Chains, conf.Decimals)
 		tkns.Set(strings.ToLower(conf.Address), tk)
 	}
 	return tkns
