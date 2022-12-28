@@ -8,7 +8,7 @@ type ResourceType string
 
 // List of ResourceType
 const (
-	SEND_EVM    ResourceType = "sendEvm"
-	SEND_NEAR   ResourceType = "sendNear"
-	SEND_SOLANA ResourceType = "sendSolana"
+	EVM    ResourceType = "evm"
+	SOLANA ResourceType = "solana"
+	NEAR   ResourceType = "near"
 )

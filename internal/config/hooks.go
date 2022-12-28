@@ -39,7 +39,7 @@ var evmChainHook = figure.Hooks{
 			}
 			return reflect.ValueOf(chains), nil
 		default:
-			return reflect.Value{}, errors.New("unexpected type while figure []evmChain")
+			return reflect.Value{}, errors.New("unexpected type while figure []config.evmChain")
 		}
 	},
 }
@@ -75,7 +75,7 @@ var solanaChainHook = figure.Hooks{
 			}
 			return reflect.ValueOf(chains), nil
 		default:
-			return reflect.Value{}, errors.New("unexpected type while figure []evmChain")
+			return reflect.Value{}, errors.New("unexpected type while figure []config.solanaChain")
 		}
 	},
 }
@@ -126,7 +126,7 @@ var evmTokenHook = figure.Hooks{
 			}
 			return reflect.ValueOf(tokens), nil
 		default:
-			return reflect.Value{}, errors.New("unexpected type while figure []tokenChain")
+			return reflect.Value{}, errors.New("unexpected type while figure []config.token")
 		}
 	},
 }

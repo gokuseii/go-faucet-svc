@@ -7,19 +7,19 @@ evm:
   chains:
     - name: "Goerli"
       native_token: GETH
-      chain_id: 5
+      id: 5
       rpc: "https://eth-goerli.public.blastapi.io"
     - name: "Sepolia"
       native_token: SEP
-      chain_id: 11155111
+      id: 11155111
       rpc: "https://rpc.sepolia.org"
     - name: "Binance Smart Chain Testnet"
       native_token: tBNB
-      chain_id: 97
+      id: 97
       rpc: "https://bsctestapi.terminet.io/rpc"
     - name: "Mumbai"
       native_token: MATIC
-      chain_id: 80001
+      id: 80001
       rpc: "https://polygon-testnet.public.blastapi.io"
   external_tokens:
     - name: "FaucetToken"
@@ -32,14 +32,15 @@ evm:
 solana:
   signer: ""
   chains:
-    - name: "testnet"
+    - id: "testnet"
       rpc: "https://api.testnet.solana.com"
-    - name: "devnet"
+    - id: "devnet"
       rpc: "https://api.devnet.solana.com"
 
 near:
   signer_id: ""
   signer: "ed25519:..."
+  id: "testnet"
   rpc: "https://rpc.testnet.near.org"
 
 listener:

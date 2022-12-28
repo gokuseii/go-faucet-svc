@@ -26,8 +26,8 @@ func NewCreateSendSolanaRequest(r *http.Request) (CreateSendSolanaRequest, error
 func (r *CreateSendSolanaRequest) validate() error {
 	return validation.Errors{
 		"/data/":                  validation.Validate(&r.Data, validation.Required),
+		"/data/id":                validation.Validate(&r.Data.ID, validation.Required),
 		"/data/attributes/to":     validation.Validate(&r.Data.Attributes.To, validation.Required, validation.Length(44, 44)),
-		"/data/attributes/chain":  validation.Validate(&r.Data.Attributes.Chain, validation.Required),
 		"/data/attributes/amount": validation.Validate(&r.Data.Attributes.Amount, validation.Required, validation.Min(uint(1))),
 	}.Filter()
 }

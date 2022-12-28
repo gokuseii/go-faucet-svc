@@ -1,5 +1,5 @@
 allOf:
-  - $ref: '#/components/schemas/SendEvmKey'
+  - $ref: '#/components/schemas/ChainKey'
   - type: object
     required:
       - attributes
@@ -7,14 +7,10 @@ allOf:
       attributes:
         type: object
         required:
-          - chain_id
           - symbol
           - to
           - amount
         properties:
-          chain_id:
-            type: int64
-            example: 5
           symbol:
             type: string
             example: GETH

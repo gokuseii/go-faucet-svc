@@ -2,19 +2,10 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"faucet-svc/internal/service/requests"
 	"faucet-svc/internal/service/responses"
 	types2 "faucet-svc/internal/types"
-	"faucet-svc/internal/types/near"
-	uint128 "github.com/eteu-technologies/golang-uint128"
-	"github.com/eteu-technologies/near-api-go/pkg/client"
-	"github.com/eteu-technologies/near-api-go/pkg/client/block"
-	"github.com/eteu-technologies/near-api-go/pkg/types"
-	"github.com/eteu-technologies/near-api-go/pkg/types/action"
-	"github.com/eteu-technologies/near-api-go/pkg/types/transaction"
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/google/jsonapi"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 	"gitlab.com/distributed_lab/logan/v3/errors"
@@ -53,17 +44,17 @@ func SendNear(w http.ResponseWriter, r *http.Request) {
 	chain := Chains(r).Near()
 	cli := chain.Client()
 
-	_, err, problem := getAccountInfo(cli, receiverId)
+	_, err = chain.GetAccountInfo(receiverId)
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get receiver account")
-		ape.RenderErr(w, problem)
+		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
-	signerInfo, err, problem := getAccountInfo(cli, signer.ID())
+	signerInfo, err := chain.GetAccountInfo(signer.ID())
 	if err != nil {
 		Log(r).WithError(err).Error("failed to get signer account")
-		ape.RenderErr(w, problem)
+		ape.RenderErr(w, problems.NotFound())
 		return
 	}
 
@@ -73,14 +64,14 @@ func SendNear(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := buildTx(cli, signer, receiverId, amount)
+	tx, err := chain.BuildTx(signer, receiverId, amount)
 	if err != nil {
 		Log(r).WithError(err).Error("failed to build tx")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	serializedTx, err := signAndSerializeTx(signer, tx)
+	serializedTx, err := chain.SignAndSerializeTx(signer, tx)
 	if err != nil {
 		Log(r).WithError(err).Error("failed to sign transaction")
 		ape.RenderErr(w, problems.InternalError())
@@ -106,66 +97,4 @@ func SendNear(w http.ResponseWriter, r *http.Request) {
 	response := responses.NewTransactionResponse(txRes.Transaction.Hash.String())
 	w.WriteHeader(200)
 	ape.Render(w, response)
-}
-
-func getAccountInfo(cli *client.Client, id string) (near.AccountInfo, error, *jsonapi.ErrorObject) {
-
-	res, err := cli.AccountView(context.Background(), id, block.FinalityFinal())
-	if err != nil {
-		return near.AccountInfo{}, err, problems.NotFound()
-	}
-
-	var acc near.AccountInfo
-	err = json.Unmarshal(res.Result, &acc)
-	if err != nil {
-		return near.AccountInfo{}, err, problems.InternalError()
-	}
-
-	return acc, nil, nil
-}
-
-func buildTx(
-	cli *client.Client,
-	signer types2.NearSigner,
-	receiverId string,
-	amount big.Int,
-) (txn transaction.Transaction, err error) {
-	pubKey := signer.KeyPair().PublicKey
-
-	accessKey, err := cli.AccessKeyView(context.Background(), signer.ID(), pubKey, block.FinalityFinal())
-	if err != nil {
-		return
-	}
-
-	blockDetails, err := cli.BlockDetails(context.Background(), block.FinalityFinal())
-	if err != nil {
-		return
-	}
-
-	txn = transaction.Transaction{
-		PublicKey:  pubKey.ToPublicKey(),
-		SignerID:   signer.ID(),
-		Nonce:      accessKey.Nonce + 1,
-		ReceiverID: receiverId,
-		Actions: []action.Action{
-			action.NewTransfer(
-				types.Balance(uint128.FromBig(&amount)),
-			),
-		},
-		BlockHash: blockDetails.Header.Hash,
-	}
-	return
-}
-
-func signAndSerializeTx(
-	signer types2.NearSigner,
-	tx transaction.Transaction,
-) (serTx string, err error) {
-	signedTx, err := transaction.NewSignedTransaction(signer.KeyPair(), tx)
-	if err != nil {
-		return
-	}
-
-	serTx, err = signedTx.Serialize()
-	return
 }

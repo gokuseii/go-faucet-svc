@@ -27,15 +27,15 @@ func NewChainer(getter kv.Getter) Chainer {
 }
 
 type evmChain struct {
-	ID          int64  `fig:"chain_id,required"`
+	ID          string `fig:"id,required"`
 	Name        string `fig:"name,required"`
 	RPC         string `fig:"rpc,required"`
 	NativeToken string `fig:"native_token,required"`
 }
 
 type solanaChain struct {
-	Name string `fig:"name,required"`
-	RPC  string `fig:"rpc,required"`
+	ID  string `fig:"id,required"`
+	RPC string `fig:"rpc,required"`
 }
 
 func (c *chainer) Evm() types.EvmChains {
@@ -67,7 +67,7 @@ func (c *chainer) Evm() types.EvmChains {
 		}
 
 		if id, err := cli.ChainID(context.Background()); err == nil {
-			if conf.ID != id.Int64() {
+			if conf.ID != id.String() {
 				panic(errors.Errorf("%s has different rpc and conf chain id", conf.Name))
 			}
 		}
@@ -101,17 +101,18 @@ func (c *chainer) Solana() types.SolanaChains {
 		}
 		cli := client.NewClient(conf.RPC)
 		if _, err := cli.GetVersion(context.TODO()); err != nil {
-			panic(errors.Errorf("failed to get solana chain version, chain %s", conf.Name))
+			panic(errors.Errorf("failed to get solana chain version, chain %s", conf.ID))
 		}
 
-		ch := types.NewSolanaChain(cli, conf.Name, conf.RPC)
-		chs.Set(conf.Name, ch)
+		ch := types.NewSolanaChain(cli, conf.ID, conf.RPC)
+		chs.Set(conf.ID, ch)
 	}
 	return chs
 }
 
 func (c *chainer) Near() types.NearChain {
 	var cfg struct {
+		ID  string `fig:"id,required"`
 		RPC string `fig:"rpc,required"`
 	}
 
@@ -130,7 +131,7 @@ func (c *chainer) Near() types.NearChain {
 		panic(errors.Wrap(err, "failed to dial near rpc"))
 	}
 
-	return types.NewNearChain(&cli, cfg.RPC)
+	return types.NewNearChain(&cli, cfg.ID, cfg.RPC)
 }
 
 func (c *chainer) Chains() Chains {
@@ -144,14 +145,14 @@ func (c *chainer) Chains() Chains {
 
 type duplicationEvmChainsValidator struct {
 	rpcMap   map[string]struct{}
-	idsMap   map[int64]struct{}
+	idsMap   map[string]struct{}
 	namesMap map[string]struct{}
 }
 
 func newDuplicationEvmChainValidator() *duplicationEvmChainsValidator {
 	return &duplicationEvmChainsValidator{
 		rpcMap:   make(map[string]struct{}),
-		idsMap:   make(map[int64]struct{}),
+		idsMap:   make(map[string]struct{}),
 		namesMap: make(map[string]struct{}),
 	}
 }
@@ -177,14 +178,14 @@ func (v *duplicationEvmChainsValidator) validate(conf evmChain) error {
 }
 
 type duplicationSolanaChainsValidator struct {
-	rpcMap   map[string]struct{}
-	namesMap map[string]struct{}
+	rpcMap map[string]struct{}
+	idsMap map[string]struct{}
 }
 
 func newDuplicationSolanaChainsValidator() *duplicationSolanaChainsValidator {
 	return &duplicationSolanaChainsValidator{
-		rpcMap:   make(map[string]struct{}),
-		namesMap: make(map[string]struct{}),
+		rpcMap: make(map[string]struct{}),
+		idsMap: make(map[string]struct{}),
 	}
 }
 
@@ -193,11 +194,11 @@ func (v *duplicationSolanaChainsValidator) validate(conf solanaChain) error {
 		return errors.Errorf("rpc %s url is duplicated", conf.RPC)
 	}
 
-	if _, ok := v.namesMap[conf.Name]; ok {
-		return errors.Errorf("name %s is duplicated", conf.Name)
+	if _, ok := v.idsMap[conf.ID]; ok {
+		return errors.Errorf("id %s is duplicated", conf.ID)
 	}
 
-	v.namesMap[conf.Name] = struct{}{}
+	v.idsMap[conf.ID] = struct{}{}
 	v.rpcMap[conf.RPC] = struct{}{}
 
 	return nil

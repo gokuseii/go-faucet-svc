@@ -26,7 +26,8 @@ func NewCreateSendNearRequest(r *http.Request) (CreateSendNearRequest, error) {
 
 func (r *CreateSendNearRequest) validate() error {
 	return validation.Errors{
-		"/data/": validation.Validate(&r.Data, validation.Required),
+		"/data/":   validation.Validate(&r.Data, validation.Required),
+		"/data/id": validation.Validate(&r.Data.ID),
 		"/data/attributes/to": validation.Validate(&r.Data.Attributes.To,
 			validation.Required,
 			validation.Length(2, 64),

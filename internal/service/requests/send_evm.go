@@ -24,11 +24,12 @@ func NewCreateSendEvmRequest(r *http.Request) (CreateSendEvmRequest, error) {
 }
 
 func (r *CreateSendEvmRequest) validate() error {
+
 	return validation.Errors{
-		"/data/":                    validation.Validate(&r.Data, validation.Required),
-		"/data/attributes/to":       validation.Validate(&r.Data.Attributes.To, validation.Required, validation.Length(40, 42)),
-		"/data/attributes/symbol":   validation.Validate(&r.Data.Attributes.Symbol, validation.Required),
-		"/data/attributes/chain_id": validation.Validate(&r.Data.Attributes.ChainId, validation.Required),
-		"/data/attributes/amount":   validation.Validate(&r.Data.Attributes.Amount, validation.Required),
+		"/data/":                  validation.Validate(&r.Data, validation.Required),
+		"/data/id":                validation.Validate(&r.Data.ID, validation.Required),
+		"/data/attributes/to":     validation.Validate(&r.Data.Attributes.To, validation.Required, validation.Length(40, 42)),
+		"/data/attributes/symbol": validation.Validate(&r.Data.Attributes.Symbol, validation.Required),
+		"/data/attributes/amount": validation.Validate(&r.Data.Attributes.Amount, validation.Required),
 	}.Filter()
 }

@@ -1,5 +1,5 @@
 allOf:
-  - $ref: '#/components/schemas/SendNearKey'
+  - $ref: '#/components/schemas/ChainKey'
   - type: object
     required:
       - attributes

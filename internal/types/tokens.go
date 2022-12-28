@@ -5,7 +5,7 @@ type EvmToken interface {
 	Symbol() string
 	Address() string
 	Kind() string
-	Chains() []int64
+	Chains() []string
 }
 
 type evmToken struct {
@@ -13,10 +13,10 @@ type evmToken struct {
 	symbol  string
 	address string
 	kind    string
-	chains  []int64
+	chains  []string
 }
 
-func NewEvmToken(name, symbol, address, kind string, chains []int64) EvmToken {
+func NewEvmToken(name, symbol, address, kind string, chains []string) EvmToken {
 	return &evmToken{
 		name:    name,
 		symbol:  symbol,
@@ -42,7 +42,7 @@ func (t *evmToken) Kind() string {
 	return t.address
 }
 
-func (t *evmToken) Chains() []int64 {
+func (t *evmToken) Chains() []string {
 	return t.chains
 }
 

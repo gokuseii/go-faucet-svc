@@ -5,10 +5,7 @@ import (
 	"faucet-svc/internal/service/requests"
 	"faucet-svc/internal/service/responses"
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/portto/solana-go-sdk/client"
 	"github.com/portto/solana-go-sdk/common"
-	"github.com/portto/solana-go-sdk/program/sysprog"
-	"github.com/portto/solana-go-sdk/types"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
 	"gitlab.com/distributed_lab/logan/v3/errors"
@@ -24,7 +21,7 @@ func SendSolana(w http.ResponseWriter, r *http.Request) {
 	}
 
 	chains := Chains(r).Solana()
-	chain, ok := chains.Get(request.Data.Attributes.Chain)
+	chain, ok := chains.Get(request.Data.ID)
 	if !ok {
 		Log(r).Error("unsupported chain")
 		ape.RenderErr(w, problems.NotFound())
@@ -56,7 +53,7 @@ func SendSolana(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := buildSolanaTx(chain.Client(), signer, receiver, amount)
+	tx, err := chain.BuildTx(signer, receiver, amount)
 	if err != nil {
 		Log(r).WithError(err).Error("failed to build tx")
 		ape.RenderErr(w, problems.InternalError())
@@ -73,37 +70,4 @@ func SendSolana(w http.ResponseWriter, r *http.Request) {
 	response := responses.NewTransactionResponse(txHash)
 	w.WriteHeader(200)
 	ape.Render(w, response)
-}
-
-func buildSolanaTx(c *client.Client, signer types.Account, receiver common.PublicKey, amount uint64) (types.Transaction, error) {
-	response, err := c.GetLatestBlockhash(context.TODO())
-	if err != nil {
-		return types.Transaction{}, err
-	}
-
-	message := types.NewMessage(
-		types.NewMessageParam{
-			FeePayer: signer.PublicKey, // public key of the transaction signer
-			Instructions: []types.Instruction{
-				sysprog.Transfer(
-					sysprog.TransferParam{
-						From:   signer.PublicKey, // public key of the transaction sender
-						To:     receiver,         // wallet address of the transaction receiver
-						Amount: amount,           // transaction amount
-					},
-				),
-			},
-			RecentBlockhash: response.Blockhash, // recent block hash
-		},
-	)
-
-	// create a transaction with the message and TX signer
-	tx, err := types.NewTransaction(
-		types.NewTransactionParam{
-			Message: message,
-			Signers: []types.Account{signer},
-		},
-	)
-
-	return tx, err
 }

@@ -24,11 +24,11 @@ func NewTokens(getter kv.Getter) Tokens {
 }
 
 type token struct {
-	Name    string  `fig:"name,required"`
-	Symbol  string  `fig:"symbol,required"`
-	Address string  `fig:"address,required"`
-	Kind    string  `fig:"type,required"`
-	Chains  []int64 `fig:"chains,required"`
+	Name    string   `fig:"name,required"`
+	Symbol  string   `fig:"symbol,required"`
+	Address string   `fig:"address,required"`
+	Kind    string   `fig:"type,required"`
+	Chains  []string `fig:"chains,required"`
 }
 
 func (c *tokens) EvmTokens() types.EvmTokens {

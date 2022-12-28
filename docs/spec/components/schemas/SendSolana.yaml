@@ -1,5 +1,5 @@
 allOf:
-  - $ref: '#/components/schemas/SendSolanaKey'
+  - $ref: '#/components/schemas/ChainKey'
   - type: object
     required:
       - attributes
@@ -7,12 +7,9 @@ allOf:
       attributes:
         type: object
         required:
-          - chain
           - to
           - amount
         properties:
-          chain:
-            type: string
           to:
             type: string
             example: HN7cABqLq46Es1jh92dQQisAq662SmxELLLsHHe4YWrH

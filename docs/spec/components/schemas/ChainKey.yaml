@@ -1,0 +1,12 @@
+type: object
+required:
+  - id
+properties:
+  id:
+    type: string
+  type:
+    type: string
+    enum:
+      - evm
+      - solana
+      - near

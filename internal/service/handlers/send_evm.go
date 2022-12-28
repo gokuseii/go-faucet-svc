@@ -2,17 +2,13 @@ package handlers
 
 import (
 	"context"
-	"crypto/ecdsa"
 	"faucet-svc/internal/contracts"
 	"faucet-svc/internal/service/requests"
 	"faucet-svc/internal/service/responses"
 	types2 "faucet-svc/internal/types"
-	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethclient"
 	validation "github.com/go-ozzo/ozzo-validation"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
@@ -21,10 +17,6 @@ import (
 	"math/big"
 	"net/http"
 	"strings"
-)
-
-var (
-	emptyAddress = common.Address{}
 )
 
 func SendEvm(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +28,7 @@ func SendEvm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	chains := Chains(r).Evm()
-	chain, ok := chains.Get(request.Data.Attributes.ChainId)
+	chain, ok := chains.Get(request.Data.ID)
 	if !ok {
 		Log(r).Error("unsupported chain")
 		ape.RenderErr(w, problems.NotFound())
@@ -110,7 +102,7 @@ func SendEvm(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		tx, err = buildEvmTx(cli, signer, receiver, amount, tokenAddress)
+		tx, err = chain.BuildTx(signer, receiver, amount, &tokenAddress)
 	} else {
 		if chain.NativeToken() != request.Data.Attributes.Symbol {
 			Log(r).Error("unsupported symbol for this chain")
@@ -132,7 +124,7 @@ func SendEvm(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		tx, err = buildEvmTx(cli, signer, receiver, amount, emptyAddress)
+		tx, err = chain.BuildTx(signer, receiver, amount, nil)
 	}
 
 	if err != nil {
@@ -141,7 +133,9 @@ func SendEvm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	signedTx, err := signEvmTx(big.NewInt(chain.ID()), tx, signer.PrivKey())
+	cid := big.NewInt(0)
+	cid.SetString(chain.ID(), 10)
+	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(cid), signer.PrivKey())
 	if err != nil {
 		Log(r).WithError(err).Error("failed to sign tx")
 		ape.RenderErr(w, problems.InternalError())
@@ -158,82 +152,4 @@ func SendEvm(w http.ResponseWriter, r *http.Request) {
 	response := responses.NewTransactionResponse(signedTx.Hash().String())
 	w.WriteHeader(200)
 	ape.Render(w, response)
-}
-
-func signEvmTx(chainId *big.Int, tx *types.Transaction, privateKey *ecdsa.PrivateKey) (*types.Transaction, error) {
-	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainId), privateKey)
-	if err != nil {
-		return &types.Transaction{}, err
-	}
-
-	return signedTx, nil
-}
-
-func getGasPrice(
-	client *ethclient.Client,
-	to common.Address,
-	data []byte,
-) (gasPrice *big.Int, gasLimit uint64, err error) {
-	gasPrice, err = client.SuggestGasPrice(context.Background())
-	if err != nil {
-		return
-	}
-
-	gasLimit, err = client.EstimateGas(context.Background(), ethereum.CallMsg{
-		To:   &to,
-		Data: data,
-	})
-	return
-}
-
-func buildEvmTx(
-	client *ethclient.Client,
-	signer types2.EvmSigner,
-	to common.Address,
-	amount big.Int,
-	tokenAddress common.Address,
-) (tx *types.Transaction, err error) {
-	nonce, err := client.PendingNonceAt(context.Background(), signer.Address())
-	if err != nil {
-		return
-	}
-
-	transferFnSignature := []byte("transfer(address,uint256)")
-	hash := crypto.NewKeccakState()
-	_, err = hash.Write(transferFnSignature)
-	if err != nil {
-		return
-	}
-
-	methodID := hash.Sum(nil)[:4]
-	paddedAddress := common.LeftPadBytes(to.Bytes(), 32)
-	paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
-
-	var data []byte
-	data = append(data, methodID...)
-	data = append(data, paddedAddress...)
-	data = append(data, paddedAmount...)
-
-	gasPrice, gasLimit, err := getGasPrice(client, to, data)
-	if err != nil {
-		return
-	}
-
-	txData := types.LegacyTx{
-		Nonce:    nonce,
-		GasPrice: gasPrice,
-		Gas:      gasLimit,
-		To:       &to,
-		Value:    &amount,
-		Data:     data,
-	}
-
-	if tokenAddress != emptyAddress {
-		txData.To = &tokenAddress
-		txData.Value = big.NewInt(0)
-		txData.Gas = gasLimit * 4
-	}
-
-	tx = types.NewTx(&txData)
-	return
 }
