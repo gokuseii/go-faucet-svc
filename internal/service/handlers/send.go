@@ -1,16 +1,13 @@
 package handlers
 
 import (
-	"faucet-svc/internal/config"
+	"faucet-svc/doorman"
 	"faucet-svc/internal/service/helpers"
 	"faucet-svc/internal/service/requests"
 	"faucet-svc/internal/service/responses"
-	"faucet-svc/internal/types"
-	validation "github.com/go-ozzo/ozzo-validation"
+	"faucet-svc/internal/types/pg"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
-	"gitlab.com/distributed_lab/logan/v3/errors"
-	"math/big"
 	"net/http"
 	"strings"
 )
@@ -32,39 +29,23 @@ func Send(w http.ResponseWriter, r *http.Request) {
 	}
 
 	signers := helpers.Signers(r)
-	signerAddress := GetSignerAddress(chain, signers)
-	receiver := request.Data.Attributes.To
-	if !chain.ValidateAddress(receiver) || receiver == signerAddress {
-		helpers.Log(r).Error("invalid receiver address")
-		ape.RenderErr(w, problems.BadRequest(
-			validation.Errors{"/data/attributes/to": errors.New("invalid receiver address")},
-		)...)
-		return
-	}
-
+	signerAddress := helpers.GetSignerAddress(string(request.Data.Type), signers)
 	tokenAddress := request.Data.Attributes.TokenAddress
 	signerBalance, err := chain.GetBalance(signerAddress, tokenAddress)
 	if err != nil {
-		helpers.Log(r).WithError(err).Errorf("failed to get signer balance")
+		helpers.Log(r).WithError(err).Errorf("failed to get balance")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
 	amount := request.Data.Attributes.Amount
-	if helpers.IsLessOrEq(*signerBalance, amount) {
+	if helpers.IsLessOrEq(signerBalance, &amount) {
 		helpers.Log(r).Error("insufficient balance")
 		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 
-	if helpers.IsLessOrEq(amount, *big.NewInt(0)) {
-		helpers.Log(r).Error("invalid amount for sending")
-		ape.RenderErr(w, problems.BadRequest(
-			validation.Errors{"/data/attributes/amount": errors.New("invalid amount for sending")},
-		)...)
-		return
-	}
-
+	receiver := request.Data.Attributes.To
 	txHash, err := chain.Send(receiver, &amount, tokenAddress)
 	if err != nil {
 		helpers.Log(r).WithError(err).Error("failed to send transaction")
@@ -83,8 +64,17 @@ func Send(w http.ResponseWriter, r *http.Request) {
 		decimals = token.Decimals()
 	}
 
+	userId, ok := doorman.GetHeader(r, "User-Id")
+	if !ok {
+		helpers.Log(r).Error("failed to get user id from header")
+		ape.RenderErr(w, problems.InternalError())
+		return
+	}
+
 	humanBalance := helpers.ToHumanBalance(&amount, decimals)
-	err = helpers.UpdateBalance(r, chain.ID(), chain.Kind(), humanBalance, tokenAddress)
+	balance := pg.NewBalance(userId, chain.ID(), chain.Kind(), humanBalance, tokenAddress)
+	balanceQ := helpers.BalancesQ(r)
+	err = balanceQ.Update(&balance)
 	if err != nil {
 		helpers.Log(r).WithError(err).Error("failed to update balance")
 		ape.RenderErr(w, problems.InternalError())
@@ -94,16 +84,4 @@ func Send(w http.ResponseWriter, r *http.Request) {
 	response := responses.NewTransactionResponse(txHash)
 	w.WriteHeader(200)
 	ape.Render(w, response)
-}
-
-func GetSignerAddress(chain types.Chain, signers config.Signers) (signerAddress string) {
-	switch chain.Kind() {
-	case "evm":
-		signerAddress = signers.Evm().Address().String()
-	case "solana":
-		signerAddress = signers.Solana().PublicKey.String()
-	case "near":
-		signerAddress = signers.Near().ID()
-	}
-	return
 }

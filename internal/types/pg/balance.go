@@ -8,3 +8,17 @@ type Balance struct {
 	TokenAddress string  `db:"token_address"`
 	Amount       float64 `db:"amount"`
 }
+
+func NewBalance(userId, chainId, chainType string, amount float64, tokenAddress *string) Balance {
+	tknAddr := ""
+	if tokenAddress != nil {
+		tknAddr = *tokenAddress
+	}
+	return Balance{
+		UserId:       userId,
+		ChainId:      chainId,
+		ChainType:    chainType,
+		TokenAddress: tknAddr,
+		Amount:       amount,
+	}
+}

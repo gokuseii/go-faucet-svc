@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"faucet-svc/internal/service/helpers"
-	"faucet-svc/internal/types"
+	chains2 "faucet-svc/internal/types/chains"
 	"faucet-svc/resources"
 	"gitlab.com/distributed_lab/ape"
 	"gitlab.com/distributed_lab/ape/problems"
@@ -51,7 +51,7 @@ func GetTokenList(w http.ResponseWriter, r *http.Request) {
 	ape.Render(w, response)
 }
 
-func newToken(id, kind, name, symbol string, balance *big.Int, decimals float64, chain types.Chain) resources.Token {
+func newToken(id, kind, name, symbol string, balance *big.Int, decimals float64, chain chains2.Chain) resources.Token {
 	return resources.Token{
 		Key: resources.Key{
 			ID:   id,
@@ -66,7 +66,7 @@ func newToken(id, kind, name, symbol string, balance *big.Int, decimals float64,
 	}
 }
 
-func newRelation(chain types.Chain) *resources.TokenRelationships {
+func newRelation(chain chains2.Chain) *resources.TokenRelationships {
 	return &resources.TokenRelationships{
 		Chain: newChain(chain.ID(), chain.Kind(), chain.Name(), chain.NativeToken(), big.NewInt(0), 0),
 	}

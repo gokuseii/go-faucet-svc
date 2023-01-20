@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"faucet-svc/internal/types"
+	chains2 "faucet-svc/internal/types/chains"
 	client2 "github.com/eteu-technologies/near-api-go/pkg/client"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/portto/solana-go-sdk/client"
@@ -15,7 +16,7 @@ import (
 )
 
 type Chainer interface {
-	Chains(signers Signers) types.Chains
+	Chains(signers Signers) chains2.Chains
 }
 
 type chainer struct {
@@ -41,7 +42,7 @@ type solanaChain struct {
 	Decimals float64 `fig:"decimals,required"`
 }
 
-func (c *chainer) Evm(chains *types.Chains, signer types.EvmSigner) {
+func (c *chainer) Evm(chains *chains2.Chains, signer types.EvmSigner) {
 
 	var cfg struct {
 		Chains []evmChain `fig:"chains,required"`
@@ -77,13 +78,13 @@ func (c *chainer) Evm(chains *types.Chains, signer types.EvmSigner) {
 			panic(errors.Errorf("%s has different rpc and conf chain id", conf.Name))
 		}
 
-		ch := types.NewEvmChain(cli, signer, conf.ID, conf.Name, conf.NativeToken, conf.RPC, conf.Decimals)
+		ch := chains2.NewEvmChain(cli, signer, conf.ID, conf.Name, conf.NativeToken, conf.RPC, conf.Decimals)
 		chains.Set(ch.ID(), ch.Kind(), ch)
 	}
 	return
 }
 
-func (c *chainer) Solana(chains *types.Chains, signer types3.Account) {
+func (c *chainer) Solana(chains *chains2.Chains, signer types3.Account) {
 	var cfg struct {
 		Chains []solanaChain `fig:"chains,required"`
 	}
@@ -107,13 +108,13 @@ func (c *chainer) Solana(chains *types.Chains, signer types3.Account) {
 			panic(errors.Errorf("failed to get solana chain version, chain %s", conf.ID))
 		}
 
-		ch := types.NewSolanaChain(cli, signer, conf.ID, "SOL", conf.RPC, conf.Decimals)
+		ch := chains2.NewSolanaChain(cli, signer, conf.ID, "SOL", conf.RPC, conf.Decimals)
 		chains.Set(ch.ID(), ch.Kind(), ch)
 	}
 	return
 }
 
-func (c *chainer) Near(chains *types.Chains, signer types.NearSigner) {
+func (c *chainer) Near(chains *chains2.Chains, signer types.NearSigner) {
 	var cfg struct {
 		ID       string  `fig:"id,required"`
 		RPC      string  `fig:"rpc,required"`
@@ -134,19 +135,19 @@ func (c *chainer) Near(chains *types.Chains, signer types.NearSigner) {
 	if err != nil {
 		panic(errors.Wrap(err, "failed to dial near rpc"))
 	}
-	ch := types.NewNearChain(&cli, signer, cfg.ID, cfg.RPC, "NEAR", cfg.Decimals)
+	ch := chains2.NewNearChain(&cli, signer, cfg.ID, cfg.RPC, "NEAR", cfg.Decimals)
 	chains.Set(ch.ID(), ch.Kind(), ch)
 	return
 }
 
-func (c *chainer) Chains(signers Signers) types.Chains {
+func (c *chainer) Chains(signers Signers) chains2.Chains {
 	return c.once.Do(func() interface{} {
-		chains := types.Chains{}
+		chains := chains2.Chains{}
 		c.Evm(&chains, signers.Evm())
 		c.Solana(&chains, signers.Solana())
 		c.Near(&chains, signers.Near())
 		return chains
-	}).(types.Chains)
+	}).(chains2.Chains)
 }
 
 type duplicationEvmChainsValidator struct {

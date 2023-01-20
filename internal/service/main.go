@@ -3,6 +3,7 @@ package service
 import (
 	"faucet-svc/doorman"
 	types2 "faucet-svc/internal/types"
+	"faucet-svc/internal/types/chains"
 	"gitlab.com/distributed_lab/kit/pgdb"
 	"net"
 	"net/http"
@@ -17,7 +18,7 @@ type service struct {
 	log      *logan.Entry
 	copus    types.Copus
 	listener net.Listener
-	chains   types2.Chains
+	chains   chains.Chains
 	signers  config.Signers
 	tokens   types2.EvmTokens
 	doorman  doorman.Connector

@@ -6,6 +6,7 @@ import (
 	"faucet-svc/internal/config"
 	"faucet-svc/internal/data"
 	"faucet-svc/internal/types"
+	"faucet-svc/internal/types/chains"
 	"net/http"
 
 	"gitlab.com/distributed_lab/logan/v3"
@@ -42,14 +43,14 @@ func Signers(r *http.Request) config.Signers {
 	return r.Context().Value(signererCtxKey).(config.Signers)
 }
 
-func CtxChains(entry types.Chains) func(context.Context) context.Context {
+func CtxChains(entry chains.Chains) func(context.Context) context.Context {
 	return func(ctx context.Context) context.Context {
 		return context.WithValue(ctx, chainerCtxKey, entry)
 	}
 }
 
-func Chains(r *http.Request) types.Chains {
-	return r.Context().Value(chainerCtxKey).(types.Chains)
+func Chains(r *http.Request) chains.Chains {
+	return r.Context().Value(chainerCtxKey).(chains.Chains)
 }
 
 func CtxTokens(entry types.EvmTokens) func(context.Context) context.Context {

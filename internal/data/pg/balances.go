@@ -70,18 +70,6 @@ func (q *BalancesQ) Get() (*pg.Balance, error) {
 	return &result, nil
 }
 
-func (q *BalancesQ) Update(balance pg.Balance, amount float64) error {
-	stmt := sq.Update(balancesTableName).
-		Set("amount", sq.Expr("amount+?", amount)).
-		Where(sq.Eq{"user_id": balance.UserId}).
-		Where(sq.Eq{"chain_id": balance.ChainId}).
-		Where(sq.Eq{"chain_type": balance.ChainType}).
-		Where(sq.Eq{"token_address": balance.TokenAddress})
-
-	err := q.db.Exec(stmt)
-	return err
-}
-
 func (q *BalancesQ) FilterByUserID(userId string) data.BalancesQ {
 	q.sql = q.sql.Where(sq.Eq{"b.user_id": userId})
 	return q
@@ -100,4 +88,30 @@ func (q *BalancesQ) FilterByChainType(chainType string) data.BalancesQ {
 func (q *BalancesQ) FilterByTokenAddress(tokenAddress string) data.BalancesQ {
 	q.sql = q.sql.Where(sq.Eq{"b.token_address": tokenAddress})
 	return q
+}
+
+func (q *BalancesQ) Update(balance *pg.Balance) error {
+	exist, err := q.FilterByUserID(balance.UserId).
+		FilterByChainID(balance.ChainId).
+		FilterByChainType(balance.ChainType).
+		FilterByTokenAddress(balance.TokenAddress).
+		Get()
+	if err != nil {
+		return err
+	}
+
+	if exist == nil {
+		err = q.Create(balance)
+		return err
+	}
+
+	stmt := sq.Update(balancesTableName).
+		Set("amount", sq.Expr("amount+?", balance.Amount)).
+		Where(sq.Eq{"user_id": balance.UserId}).
+		Where(sq.Eq{"chain_id": balance.ChainId}).
+		Where(sq.Eq{"chain_type": balance.ChainType}).
+		Where(sq.Eq{"token_address": balance.TokenAddress})
+
+	err = q.db.Exec(stmt)
+	return err
 }

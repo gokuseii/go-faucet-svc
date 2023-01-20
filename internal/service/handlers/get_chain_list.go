@@ -14,7 +14,7 @@ func GetChainList(w http.ResponseWriter, r *http.Request) {
 	signers := helpers.Signers(r)
 	var chainList []resources.Chain
 	for _, chain := range chains {
-		signerAddress := GetSignerAddress(chain, signers)
+		signerAddress := helpers.GetSignerAddress(chain.Kind(), signers)
 		balance, err := chain.GetBalance(signerAddress, nil)
 		if err != nil {
 			helpers.Log(r).WithError(err).Errorf("failed to get balance on %s chain, wallet address %s", chain.Kind(), signerAddress)
