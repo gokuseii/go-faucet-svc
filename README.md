@@ -2,7 +2,7 @@
 
 ## Description
 
-[//]: # (TODO: add description)
+Service for crosschain exchange of testnets cryptocurrency
 
 ## Install
 
